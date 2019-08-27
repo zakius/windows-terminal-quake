@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
+using WindowsTerminalQuake.Native;
 using WindowsTerminalQuake.UI;
 
 namespace WindowsTerminalQuake
@@ -20,27 +22,22 @@ namespace WindowsTerminalQuake
                 Process process = Process.GetProcessesByName("WindowsTerminal").FirstOrDefault();
                 if (process == null)
                 {
-                    process = new Process
-                    {
-                        StartInfo = new ProcessStartInfo
-                        {
-                            FileName = "wt",
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            WindowStyle = ProcessWindowStyle.Maximized
-                        }
-                    };
-                    process.Start();
-                }
 
+                    ProcessStartInfo startInfo = new ProcessStartInfo();
+                    startInfo.FileName = "wt";
+                    startInfo.WindowStyle = ProcessWindowStyle.Maximized;                    
+                    process = Process.Start(startInfo);
+                }
+                                
                 process.EnableRaisingEvents = true;
                 process.Exited += (sender, e) =>
                 {
-                    Environment.Exit(0);
-                };
+                    Close();
+                };              
+
                 _toggler = new Toggler(process);
 
-                _trayIcon.Notify(ToolTipIcon.Info, $"Windows Terminal Quake is running, press CTRL+~ or CTRL+Q to toggle.");
+                _trayIcon.Notify(ToolTipIcon.Info, $"Windows Terminal Quake is running, press CTRL+~ or CTRL+Q to toggle.");                                
             }
             catch (Exception ex)
             {
